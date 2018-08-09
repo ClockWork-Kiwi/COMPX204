@@ -15,13 +15,15 @@ class HttpServerSession extends Thread
 	{
 		try
 		{
+			BufferedOutputStream writer = new BufferedOutputStream(socket.getOutputStream());
 			BufferedReader reader = new BufferedReader( new InputStreamReader(socket.getInputStream())); 
 			String request = reader.readLine();
 			String[] parts = request.split(" ");
+			System.out.println(parts[1].substring(1));
 			if (parts.length != 3)
 			{
 
-			}
+			}			
 			else
 			{
 				String line;
@@ -32,19 +34,48 @@ class HttpServerSession extends Thread
 					{
 						//handle end of file
 					}
+
 					if (line.compareTo("") == 0)
 					{
 						break;
 					}
 				}
-				BufferedOutputStream writer = new BufferedOutputStream(socket.getOutputStream());
-				println(writer, line);
-				println(writer, "Hello World");
+				if (parts[0].compareTo("GET") == 0)
+				{					
+
+				
+										
+					String fileName = parts[1].substring(1);					
+					File tmpDir = new File("/Desktop/Semester_B/204/COMPX204/prac2" + fileName);
+					//if (tmpDir.exists())
+					//{						
+					FileInputStream fileReader = new FileInputStream(fileName);
+					
+					println(writer, "HTTP/1.1 200 OK");
+					println(writer, "");	
+					byte[] array = new byte[1024];
+					int something = 0;
+					while((something = fileReader.read(array)) != -1)
+					{
+						writer.write(array, 0, something);
+					}					
+					fileReader.close();
+					writer.flush();	
+					writer.close();
+					socket.close();
+					//println(writer, "Hello World");
+					//}
+					//else
+					//{
+					//	println(writer, "HTTP/1.1 404 Not Found");
+					//}					
+				}
 			}
+			
 		}
 		catch (Exception e)
 		{
-			System.out.println(e);
+			System.out.println(e.toString());		
 		}
 	}
 
@@ -58,6 +89,7 @@ class HttpServerSession extends Thread
 		{
 			writer.write(array[i]);
 		}
+		//System.out.println(toSend);
 		return;
 	}
 
